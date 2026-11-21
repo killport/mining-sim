@@ -1042,7 +1042,27 @@ local function StartAutoTools()
 	end)
 end
 
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+print("[MS] Loading WindUI...")
+local WindUI
+do
+	local urls = {
+		"https://github.com/Footagesus/WindUI/releases/latest/download/main.lua",
+		"https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua",
+	}
+	for _, url in ipairs(urls) do
+		local ok, res = pcall(function() return loadstring(game:HttpGet(url))() end)
+		if ok and res then
+			WindUI = res
+			print("[MS] WindUI loaded from " .. url)
+			break
+		else
+			print("[MS] WindUI load FAILED (" .. url .. "): " .. tostring(res))
+		end
+	end
+	if not WindUI then
+		error("[MS] Could not load WindUI - check your executor's HttpGet / internet / try re-injecting")
+	end
+end
 
 local function StopAreaRun()
 	areaRunId = areaRunId + 1
@@ -1311,6 +1331,7 @@ task.spawn(function()
 	end
 end)
 
+print("[MS] Creating window...")
 local Window = WindUI:CreateWindow({
 	Title = "Mining Simulator",
 	Icon = "pickaxe",
@@ -1321,6 +1342,7 @@ local Window = WindUI:CreateWindow({
 	ToggleKey = Enum.KeyCode.LeftShift,
 })
 getgenv().__MS_WindUIWindow = Window
+print("[MS] Window created (LeftShift toggles it)")
 
 local MineTab = Window:Tab({ Title = "Mining", Icon = "pickaxe" })
 local SellTab = Window:Tab({ Title = "Sell", Icon = "coins" })
